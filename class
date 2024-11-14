@@ -1,0 +1,5 @@
+class Location:
+    def __init__(self, name, rating, comment):
+        self.name = name
+        self.rating = rating
+        self.comment = comment
