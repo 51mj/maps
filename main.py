@@ -22,7 +22,11 @@ class LocationHomepage:
         title_label = tk.Label(title_frame, text="National Park App", bg="gray", font=("Noteworthy", 36))
         title_label.pack(pady=5)
 
-        map_widget = TkinterMapView(root, width=600, height=400, corner_radius=0)
+        map_widget = TkinterMapView(root, width=800, height=500, corner_radius=0)
+        map_widget.set_position(41.5868, -93.6250)
+        map_widget.set_zoom(4)
+
+
         map_widget.grid(sticky="ew")
 
 if __name__ == "__main__":
