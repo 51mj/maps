@@ -1,12 +1,8 @@
-#pipinstall
+from tkinter import BOTH
 
 import googlemaps
 import tkinter as tk
-import subprocess
-
 from tkintermapview import TkinterMapView
-
-gmaps = googlemaps.Client(key = 'AIzaSyALFItD1OlN0HdfJ1hEo3NJEyMR1SrgJto')
 
 class LocationHomepage:
     def __init__(self, root):
@@ -15,19 +11,15 @@ class LocationHomepage:
         self.root.geometry("1000x500")
 
         title_frame = tk.Frame(self.root, height=40)
-        title_frame.grid_propagate(False)
-        title_frame.grid(sticky="ew")
+        title_frame.pack(fill=BOTH, expand=True)
 
-                
+
         title_label = tk.Label(title_frame, text="National Park App", bg="gray", font=("Noteworthy", 36))
-        title_label.pack(pady=5)
+        title_label.pack(fill=BOTH, expand=True)
 
-        map_widget = TkinterMapView(root, width=800, height=500, corner_radius=0)
-        map_widget.set_position(41.5868, -93.6250)
-        map_widget.set_zoom(4)
+        gmaps = TkinterMapView(root, width=1000, height=500)
+        gmaps.pack(fill=BOTH, expand=True)
 
-
-        map_widget.grid(sticky="ew")
 
 if __name__ == "__main__":
     root = tk.Tk()
