@@ -24,7 +24,7 @@ class LocationHomepage:
         search_frame = tk.Frame(self.root)
         search_frame.pack(pady=10)
 
-        entry = tk.Entry(search_frame, font=("Noteworthy", 24))
+        entry = tk.Entry(search_frame, font=("Noteworthy", 20))
         entry.grid(row=0, column=0, padx=5, pady=5)
         button = tk.Button(search_frame, text="Search", command=lambda: self.search(entry), font=("Noteworthy", 18))
         button.grid(row=0, column=1, padx=5, pady=5)
