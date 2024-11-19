@@ -2,6 +2,8 @@ from tkinter import BOTH
 
 import tkinter as tk
 from tkintermapview import TkinterMapView
+from canvas_button import CanvasButton
+
 
 class LocationHomepage:
     def __init__(self, root):
@@ -20,6 +22,10 @@ class LocationHomepage:
         gmaps.set_position(41.5868, -93.6250)
         gmaps.set_zoom(4)
         gmaps.pack(fill=BOTH, expand=True)
+
+        self.button_zoom_in = CanvasButton(self, (20, 20), text="+", command=self.button_zoom_in)
+        self.button_zoom_out = CanvasButton(self, (20, 60), text="-", command=self.button_zoom_out)
+
 
 
 if __name__ == "__main__":
