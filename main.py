@@ -18,6 +18,8 @@ class LocationHomepage:
         title_label.pack(fill=BOTH, expand=True)
 
         gmaps = TkinterMapView(root, width=1000, height=500)
+        gmaps.set_position(41.5868, -93.6250)
+        gmaps.set_zoom(4)
         gmaps.pack(fill=BOTH, expand=True)
 
 
