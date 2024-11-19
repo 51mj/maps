@@ -1,6 +1,5 @@
 from tkinter import BOTH
 
-import googlemaps
 import tkinter as tk
 from tkintermapview import TkinterMapView
 
