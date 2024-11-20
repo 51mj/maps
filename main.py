@@ -21,17 +21,23 @@ class LocationHomepage:
         self.gmaps.set_zoom(4)
         self.gmaps.pack(fill="x", expand=True)
 
-        search_frame = tk.Frame(self.root)
-        search_frame.pack(pady=10)
+        button_search_frame = tk.Frame(self.root)
+        button_search_frame.pack(pady=10)
 
-        entry = tk.Entry(search_frame, font=("Noteworthy", 20))
-        entry.grid(row=0, column=0, padx=5, pady=5)
-        button = tk.Button(search_frame, text="Search", command=lambda: self.search(entry), font=("Noteworthy", 18))
-        button.grid(row=0, column=1, padx=5, pady=5)
+        search_entry = tk.Entry(button_search_frame, font=("Noteworthy", 20))
+        search_entry.grid(row=0, column=0, padx=5, pady=5)
+        search_button = tk.Button(button_search_frame, text="Search", command=lambda: self.search(search_entry), font=("Noteworthy", 18))
+        search_button.grid(row=0, column=1, padx=5, pady=5)
+
+        self.gmaps.add_right_click_menu_command(label="Add Marker", command=self.add_marker, pass_coords=True)
 
     def search(self, entry):
         self.gmaps.set_address(entry.get())
         entry.delete(0, tk.END)
+
+    def add_marker(self, coords):
+        print("Add marker: ", coords)
+        new_marker = self.gmaps.set_marker(coords[0], coords[1], text="New Marker")
 
 if __name__ == "__main__":
     root = tk.Tk()
