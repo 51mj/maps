@@ -1,10 +1,7 @@
 import tkinter as tk
 from tkintermapview import TkinterMapView
 
-from ListPage import ListPage
-
-
-class LocationHomepage:
+class ListPage:
     def __init__(self, root):
         self.root = root
         self.root.title("Map App")
@@ -41,9 +38,6 @@ class LocationHomepage:
         self.marker_text.grid(row=0, column=2, padx=5, pady=5)
         self.marker_button = tk.Button(button_search_frame, text="Update", command=lambda: self.change_marker(self.marker_text), font=("Noteworthy", 18))
         self.marker_button.grid(row=0, column=3, padx=5, pady=5)
-
-        self.list_button = tk.Button(button_search_frame, text="List Page", command=self.open_list, font=("Noteworthy", 18))
-        self.list_button.grid(row=0, column=4, padx=5, pady=5)
 
         self.gmaps.add_right_click_menu_command(label="Add Marker", command=self.add_marker, pass_coords=True)
 
@@ -88,10 +82,6 @@ class LocationHomepage:
         if not self.marker_text.get():
             self.marker_text.insert(0, "National Park Name")
             self.marker_text.config(fg="gray")
-
-    def open_list(self):
-        new_window = tk.Toplevel(self.root)
-        ListPage(new_window)
 
 if __name__ == "__main__":
     root = tk.Tk()
