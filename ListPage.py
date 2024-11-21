@@ -1,89 +1,136 @@
 import tkinter as tk
-from tkintermapview import TkinterMapView
+from tkinter import ttk, messagebox
+import os
+
+DEFAULT_FILE_PATH = "park_data.txt"
+
+
+class Park:
+    def __init__(self, name):
+        self.name = name
+
+
+    def __str__(self):
+        return f"{self.name} | {self.year}"
 
 class ListPage:
     def __init__(self, root):
         self.root = root
-        self.root.title("Map App")
+        self.root.title("Park List")
         self.root.geometry("1250x700")
 
-        title_frame = tk.Frame(self.root, height=40)
-        title_frame.pack(fill="both", expand=True)
+        # Initialize editing
+        self.is_editing = False
+        self.current_edit_index = None
+        self.original_items = []
 
+        # Title Label
+        label = tk.Label(root, text="Parks", font=("Arial", 24))
+        label.pack(pady=10)
 
-        title_label = tk.Label(title_frame, text="National Park App", bg="gray", font=("Noteworthy", 36))
-        title_label.pack(fill="both", expand=True)
+        # Frame for the entry fields
+        frame1 = tk.Frame(root)
+        self.create_form_fields(frame1)
+        frame1.pack(padx=20, pady=20, expand=True, fill="both")
 
-        self.gmaps = TkinterMapView(root, width=1000, height=500)
-        self.gmaps.set_position(41.5868, -93.6250)
-        self.gmaps.set_tile_server("https://mt0.google.com/vt/lyrs=m&hl=en&x={x}&y={y}&z={z}&s=Ga", max_zoom=22)
-        self.gmaps.set_zoom(4)
-        self.gmaps.pack(fill="x", expand=True)
+        # Treeview to display the videos as a table
+        columns = ('Name')
+        self.tree = ttk.Treeview(root, columns=columns, show="headings", height=15)
+        for col in columns:
+            self.tree.heading(col, text=col)
+            self.tree.column(col, anchor=tk.W, width=150)
 
-        button_search_frame = tk.Frame(self.root)
-        button_search_frame.pack(pady=10)
+        self.tree.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
 
-        self.search_entry = tk.Entry(button_search_frame, font=("Noteworthy", 20), fg="gray")
-        self.search_entry.insert(0, "Enter a National Park")
-        self.search_entry.bind("<FocusIn>", self.clear_placeholder)
-        self.search_entry.bind("<FocusOut>", self.add_placeholder)
-        self.search_entry.grid(row=0, column=0, padx=5, pady=5)
-        self.search_button = tk.Button(button_search_frame, text="Search", command=lambda: self.search(self.search_entry), font=("Noteworthy", 18))
-        self.search_button.grid(row=0, column=1, padx=5, pady=5)
+        # Store videos in a list
+        self.parks = []
 
-        self.marker_text = tk.Entry(button_search_frame, font=("Noteworthy", 20), fg="gray")
-        self.marker_text.insert(0, "National Park Name")
-        self.marker_text.bind("<FocusIn>", self.clear)
-        self.marker_text.bind("<FocusOut>", self.add)
-        self.marker_text.grid(row=0, column=2, padx=5, pady=5)
-        self.marker_button = tk.Button(button_search_frame, text="Update", command=lambda: self.change_marker(self.marker_text), font=("Noteworthy", 18))
-        self.marker_button.grid(row=0, column=3, padx=5, pady=5)
+        # Automatically open the file dialog after window initialization
+        self.root.after(100, self.open_file)
 
-        self.gmaps.add_right_click_menu_command(label="Add Marker", command=self.add_marker, pass_coords=True)
+    def create_form_fields(self, frame):
+        labels = ["Video Name", "Year", "Director", "Rating", "Genre"]
+        entries = []
+        for idx, label_text in enumerate(labels):
+            label = tk.Label(frame, text=label_text, font=("Arial", 12))
+            label.grid(row=0, column=idx, padx=10, pady=5, sticky="nsew")
+            entry = tk.Entry(frame, width=30)
+            entry.grid(row=1, column=idx, padx=10, pady=5, sticky="nsew")
+            entries.append(entry)
 
-        self.marker = None
+        self.video, self.year, self.director, self.rating, self.genre = entries
+        for col in range(5):
+            frame.grid_columnconfigure(col, weight=1)
+        frame.grid_rowconfigure(0, weight=1)
+        frame.grid_rowconfigure(1, weight=1)
 
-    def search(self, entry):
-        search_text = entry.get()
-        if search_text and search_text != "Enter a National Park":
-            self.gmaps.set_address(search_text)
-        entry.delete(0, tk.END)
-        self.root.after(100, self.check_focus())
+    def open_file(self):
+        if os.path.exists(DEFAULT_FILE_PATH):
+            self.tree.delete(*self.tree.get_children())
+            self.videos = []
 
-    def check_focus(self):
-        if self.root.focus_get() != self.search_entry:
-            self.add_placeholder(None)
+            with open(DEFAULT_FILE_PATH, 'r') as file:
+                for line in file:
+                    video_info = line.strip().split(" | ")
+                    if len(video_info) == 6:
+                        video = Video(video_info[0], video_info[1], video_info[2],
+                                      video_info[3], video_info[4], video_info[5])
+                        self.videos.append(video)
+                        self.tree.insert('', tk.END, values=(video.name, video.year, video.director,
+                                                             video.rating, video.genre, video.rental_status))
 
-    def add_marker(self, coords):
-        print("Add marker: ", coords)
-        new_marker = self.gmaps.set_marker(coords[0], coords[1], text="National Park")
-        self.marker = new_marker
+    def save_park(self):
+        try:
+            with open(DEFAULT_FILE_PATH, 'w') as file:
+                for video in self.videos:
+                    file.write(str(video) + "\n")
+                messagebox.showinfo("Save Successful", "The video data has been saved!")
+                
+            self.root.lift()
+            self.root.focus_force()
+            
+        except Exception as e:
+            messagebox.showerror("Error", f"Error saving file: {str(e)}")
 
-    def change_marker(self, marker, new_text):
-        if marker:
-            marker.set_text(new_text)
+    def update_file(self):
+        try:
+            with open(DEFAULT_FILE_PATH, 'w') as file:
+                for video in self.videos:
+                    file.write(str(video) + "\n")
+        except Exception as e:
+            messagebox.showerror("Error", f"Error updating file: {str(e)}")
 
-    def clear_placeholder(self, event):
-        if self.search_entry.get() == "Enter a National Park":
-            self.search_entry.delete(0, tk.END)
-            self.search_entry.config(fg="black")
+    def search_videos(self):
+        search_term = self.search.get().strip().lower()
 
-    def clear(self, event):
-        if self.marker_text.get() == "National Park Name":
-            self.marker_text.delete(0, tk.END)
-            self.marker_text.config(fg="black")
+        self.tree.delete(*self.tree.get_children())
+        self.root.update()
 
-    def add_placeholder(self, event):
-        if not self.search_entry.get():
-            self.search_entry.insert(0, "Enter a National Park")
-            self.search_entry.config(fg="gray")
+        results = [video for video in self.videos if (
+                search_term in video.name.lower() or
+                search_term in video.year.lower() or
+                search_term in video.director.lower() or
+                search_term in video.rating.lower() or
+                search_term in video.genre.lower()
+        )]
 
-    def add(self, event):
-        if not self.marker_text.get():
-            self.marker_text.insert(0, "National Park Name")
-            self.marker_text.config(fg="gray")
+        for video in results:
+            self.tree.insert('', tk.END, values=(video.name, video.year, video.director,
+                                                 video.rating, video.genre, video.rental_status))
+        self.root.update()
+        if not results:
+            messagebox.showinfo("No Results", "No videos matched your search.")
+
+    def clear_fields(self):
+        self.video.delete(0, tk.END)
+        self.year.delete(0, tk.END)
+        self.director.delete(0, tk.END)
+        self.rating.delete(0, tk.END)
+        self.genre.delete(0, tk.END)
+
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = LocationHomepage(root)
+    root.attributes("-topmost", True)
+    app = ListPage(root)
     root.mainloop()
