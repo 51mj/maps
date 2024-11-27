@@ -1,8 +1,13 @@
 import tkinter as tk
 from tkintermapview import TkinterMapView
-
+import tkinter.simpledialog
 from ListPage import ListPage
+import firebase_admin
+from firebase_admin import credentials, firestore
 
+cred = credentials.Certificate(r"C:\Users\ianni\PycharmProjects\map-bytes.json")
+firebase_admin.initialize_app(cred)
+db = firestore.client()
 
 class LocationHomepage:
     def __init__(self, root):
@@ -22,6 +27,8 @@ class LocationHomepage:
         self.gmaps.set_tile_server("https://mt0.google.com/vt/lyrs=m&hl=en&x={x}&y={y}&z={z}&s=Ga", max_zoom=22)
         self.gmaps.set_zoom(4)
         self.gmaps.pack(fill="x", expand=True)
+
+        self.load_saved_data()
 
         button_search_frame = tk.Frame(self.root)
         button_search_frame.pack(pady=10)
@@ -49,6 +56,18 @@ class LocationHomepage:
 
         self.marker = None
 
+    def load_saved_data(self):
+        parks_ref = db.collection("NationalParks")
+        docs = parks_ref.stream()
+
+        for doc in docs:
+            park_data = doc.to_dict()
+            latitude = park_data.get("latitude")
+            longitude = park_data.get("longitude")
+            name = park_data.get("name", "National Park")
+
+            self.gmaps.set_marker(latitude, longitude, text=name)
+
     def search(self, entry):
         search_text = entry.get()
         if search_text and search_text != "Enter a National Park":
@@ -61,9 +80,21 @@ class LocationHomepage:
             self.add_placeholder(None)
 
     def add_marker(self, coords):
-        print("Add marker: ", coords)
-        new_marker = self.gmaps.set_marker(coords[0], coords[1], text="National Park")
-        self.marker = new_marker
+        park_name = tk.simpledialog.askstring("Park Name", "Enter the name of the National Park:")
+
+        if park_name:
+            print("Add marker: ", coords)
+            new_marker = self.gmaps.set_marker(coords[0], coords[1], text=park_name)
+            self.marker = new_marker
+
+            park_data = {
+                "latitude": coords[0],
+                "longitude": coords[1],
+                "name": park_name,
+            }
+
+            doc_ref = db.collection('NationalParks').document(park_name)
+            doc_ref.set(park_data)
 
     def change_marker(self, marker, new_text):
         if marker:
