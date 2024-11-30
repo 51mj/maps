@@ -73,7 +73,7 @@ class LocationHomepage:
         if search_text and search_text != "Enter a National Park":
             self.gmaps.set_address(search_text)
         entry.delete(0, tk.END)
-        self.root.after(100, self.check_focus())
+        self.root.after(100, self.check_focus)
 
     def check_focus(self):
         if self.root.focus_get() != self.search_entry:
@@ -97,8 +97,7 @@ class LocationHomepage:
             doc_ref.set(park_data)
 
     def change_marker(self, marker, new_text):
-        if marker:
-            marker.set_text(new_text)
+        pass
 
     def clear_placeholder(self, event):
         if self.search_entry.get() == "Enter a National Park":
