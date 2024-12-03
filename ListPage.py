@@ -80,7 +80,7 @@ class ListPage:
             messagebox.showerror("Error", f"Error saving file: {str(e)}")
 
 
-    def search_videos(self):
+    def search_parks(self):
         search_term = self.search.get().strip().lower()
 
         self.tree.delete(*self.tree.get_children())
