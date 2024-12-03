@@ -49,7 +49,7 @@ class ListPage:
         self.root.after(100, self.open_file)
 
     def create_form_fields(self, frame):
-        labels = ["Video Name", "Year", "Director", "Rating", "Genre"]
+        labels = ["Name"]
         entries = []
         for idx, label_text in enumerate(labels):
             label = tk.Label(frame, text=label_text, font=("Arial", 12))
@@ -58,7 +58,7 @@ class ListPage:
             entry.grid(row=1, column=idx, padx=10, pady=5, sticky="nsew")
             entries.append(entry)
 
-        self.video, self.year, self.director, self.rating, self.genre = entries
+        self.name = entries
         for col in range(5):
             frame.grid_columnconfigure(col, weight=1)
         frame.grid_rowconfigure(0, weight=1)
@@ -67,24 +67,14 @@ class ListPage:
     def open_file(self):
         if os.path.exists(DEFAULT_FILE_PATH):
             self.tree.delete(*self.tree.get_children())
-            self.videos = []
+            self.name = []
 
-            with open(DEFAULT_FILE_PATH, 'r') as file:
-                for line in file:
-                    video_info = line.strip().split(" | ")
-                    if len(video_info) == 6:
-                        video = Video(video_info[0], video_info[1], video_info[2],
-                                      video_info[3], video_info[4], video_info[5])
-                        self.videos.append(video)
-                        self.tree.insert('', tk.END, values=(video.name, video.year, video.director,
-                                                             video.rating, video.genre, video.rental_status))
-
-    def save_park(self):
+    def save_name(self):
         try:
             with open(DEFAULT_FILE_PATH, 'w') as file:
-                for video in self.videos:
+                for name in self.name:
                     file.write(str(video) + "\n")
-                messagebox.showinfo("Save Successful", "The video data has been saved!")
+                messagebox.showinfo("Save Successful", "The name data has been saved!")
                 
             self.root.lift()
             self.root.focus_force()
@@ -92,13 +82,6 @@ class ListPage:
         except Exception as e:
             messagebox.showerror("Error", f"Error saving file: {str(e)}")
 
-    def update_file(self):
-        try:
-            with open(DEFAULT_FILE_PATH, 'w') as file:
-                for video in self.videos:
-                    file.write(str(video) + "\n")
-        except Exception as e:
-            messagebox.showerror("Error", f"Error updating file: {str(e)}")
 
     def search_videos(self):
         search_term = self.search.get().strip().lower()
@@ -106,28 +89,15 @@ class ListPage:
         self.tree.delete(*self.tree.get_children())
         self.root.update()
 
-        results = [video for video in self.videos if (
-                search_term in video.name.lower() or
-                search_term in video.year.lower() or
-                search_term in video.director.lower() or
-                search_term in video.rating.lower() or
-                search_term in video.genre.lower()
+        results = [name for name in self.name if (
+                search_term in park.name.lower()
         )]
 
-        for video in results:
-            self.tree.insert('', tk.END, values=(video.name, video.year, video.director,
-                                                 video.rating, video.genre, video.rental_status))
+        for name in results:
+            self.tree.insert('', tk.END, values=(park.name))
         self.root.update()
         if not results:
-            messagebox.showinfo("No Results", "No videos matched your search.")
-
-    def clear_fields(self):
-        self.video.delete(0, tk.END)
-        self.year.delete(0, tk.END)
-        self.director.delete(0, tk.END)
-        self.rating.delete(0, tk.END)
-        self.genre.delete(0, tk.END)
-
+            messagebox.showinfo("No Results", "No places matched your search.")
 
 if __name__ == "__main__":
     root = tk.Tk()
