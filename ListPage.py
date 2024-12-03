@@ -38,7 +38,6 @@ class ListPage:
         self.tree = ttk.Treeview(root, columns=columns, show="headings", height=15)
         for col in columns:
             self.tree.heading(col, text=col)
-            self.tree.column(col, anchor=tk.W)
 
         self.tree.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
 
