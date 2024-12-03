@@ -61,8 +61,6 @@ class ListPage:
         self.name = entries
         for col in range(5):
             frame.grid_columnconfigure(col, weight=1)
-        frame.grid_rowconfigure(0, weight=1)
-        frame.grid_rowconfigure(1, weight=1)
 
     def open_file(self):
         if os.path.exists(DEFAULT_FILE_PATH):
