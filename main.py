@@ -1,4 +1,5 @@
 import tkinter as tk
+import requests
 from tkintermapview import TkinterMapView
 import tkinter.simpledialog
 from ListPage import ListPage
@@ -8,6 +9,35 @@ from firebase_admin import credentials, firestore
 cred = credentials.Certificate(r"C:\Users\ianni\PycharmProjects\map-bytes.json")
 firebase_admin.initialize_app(cred)
 db = firestore.client()
+
+def reverse_geocode(lat, lon):
+    url = 'https://nominatim.openstreetmap.org/reverse'
+    params = {
+        'lat': str(lat),
+        'lon': str(lon),
+        'format': 'jsonv2',
+        'addressdetails': 1
+    }
+    headers = {
+        'User-Agent': 'The Bytes (ian.nichols056@gmail.com)'
+    }
+    response = requests.get(url, params=params, headers=headers)
+    response.raise_for_status()
+    return response.json()
+
+def geocode(location_name):
+    url = 'https://nominatim.openstreetmap.org/search'
+    params = {
+        'q': location_name,
+        'format': 'jsonv2',
+        'addressdetails': 1
+    }
+    headers = {
+        'User-Agent': 'The Bytes (ian.nichols056@gmail.com)'
+    }
+    response = requests.get(url, params=params, headers=headers)
+    response.raise_for_status()
+    return response.json()
 
 class LocationHomepage:
     def __init__(self, root):
@@ -29,6 +59,9 @@ class LocationHomepage:
         self.gmaps.pack(fill="x", expand=True)
 
         self.load_saved_data()
+
+        self.display_label = tk.Label(self.root, text="", font=("Noteworthy", 18), fg="black", wraplength=1000)
+        self.display_label.pack(pady=10)
 
         button_search_frame = tk.Frame(self.root)
         button_search_frame.pack(pady=10)
@@ -61,11 +94,31 @@ class LocationHomepage:
             self.gmaps.set_marker(latitude, longitude, text=name)
 
     def search(self, entry):
-        search_text = entry.get()
-        if search_text and search_text != "Enter a National Park":
-            self.gmaps.set_address(search_text)
+        search_text = entry.get().strip()
+        if not search_text or search_text == "Enter a National Park":
+            return
+
+        try:
+            location_data = geocode(search_text)
+
+            if location_data:
+                first_result = location_data[0]
+                lat = float(first_result.get("lat"))
+                lon = float(first_result.get("lon"))
+                display_name = first_result.get("display_name", "Unknown Location")
+
+                self.gmaps.set_position(lat, lon)
+                self.gmaps.set_zoom(12)
+
+                self.display_label.config(text=f"Location: {display_name}")
+            else:
+                print("No results found")
+        except Exception as e:
+            print(f"Error during search: {e}")
+
         entry.delete(0, tk.END)
-        self.root.after(100, self.check_focus)
+        self.root.after(100, self.check_focus())
+
 
     def check_focus(self):
         if self.root.focus_get() != self.search_entry:
