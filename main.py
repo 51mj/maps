@@ -41,14 +41,6 @@ class LocationHomepage:
         self.search_button = tk.Button(button_search_frame, text="Search", command=lambda: self.search(self.search_entry), font=("Noteworthy", 18))
         self.search_button.grid(row=0, column=1, padx=5, pady=5)
 
-        self.marker_text = tk.Entry(button_search_frame, font=("Noteworthy", 20), fg="gray")
-        self.marker_text.insert(0, "National Park Name")
-        self.marker_text.bind("<FocusIn>", self.clear)
-        self.marker_text.bind("<FocusOut>", self.add)
-        self.marker_text.grid(row=0, column=2, padx=5, pady=5)
-        self.marker_button = tk.Button(button_search_frame, text="Update", command=lambda: self.change_marker(self.marker_text), font=("Noteworthy", 18))
-        self.marker_button.grid(row=0, column=3, padx=5, pady=5)
-
         self.list_button = tk.Button(button_search_frame, text="List Page", command=self.open_list, font=("Noteworthy", 18))
         self.list_button.grid(row=0, column=4, padx=5, pady=5)
 
@@ -96,28 +88,15 @@ class LocationHomepage:
             doc_ref = db.collection('NationalParks').document(park_name)
             doc_ref.set(park_data)
 
-    def change_marker(self, marker, new_text):
-        pass
-
     def clear_placeholder(self, event):
         if self.search_entry.get() == "Enter a National Park":
             self.search_entry.delete(0, tk.END)
             self.search_entry.config(fg="black")
 
-    def clear(self, event):
-        if self.marker_text.get() == "National Park Name":
-            self.marker_text.delete(0, tk.END)
-            self.marker_text.config(fg="black")
-
     def add_placeholder(self, event):
         if not self.search_entry.get():
             self.search_entry.insert(0, "Enter a National Park")
             self.search_entry.config(fg="gray")
-
-    def add(self, event):
-        if not self.marker_text.get():
-            self.marker_text.insert(0, "National Park Name")
-            self.marker_text.config(fg="gray")
 
     def open_list(self):
         new_window = tk.Toplevel(self.root)
