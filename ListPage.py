@@ -17,7 +17,7 @@ class ListPage:
         self.root = root
         self.root.title("Park List")
         self.root.geometry("1250x700")
-        self.root.configure(bg="#87CEEB")  # Set background color to light blue
+        self.root.configure(bg="gray")  
 
         # Initialize editing
         self.is_editing = False
@@ -25,16 +25,16 @@ class ListPage:
         self.original_items = []
 
         # Title Label
-        label = tk.Label(root, text="Parks", font=("Arial", 24), bg="#87CEEB", fg="white")
+        label = tk.Label(root, text="Parks", font=("Arial", 24), bg="gray", fg="white")
         label.pack(pady=10)
 
         # Frame for the entry fields
-        frame1 = tk.Frame(root, bg="#87CEEB")
+        frame1 = tk.Frame(root, bg="gray")
         self.create_form_fields(frame1)
         frame1.pack(padx=20, pady=20, expand=True, fill="both")
 
         # Frame for buttons
-        frame2 = tk.Frame(root, bg="#87CEEB")
+        frame2 = tk.Frame(root, bg="gray")
         self.create_buttons(frame2)
         frame2.pack(pady=10)
 
@@ -53,23 +53,23 @@ class ListPage:
         self.root.after(100, self.open_file)
 
     def create_form_fields(self, frame):
-        label = tk.Label(frame, text="Name", font=("Arial", 12), bg="#87CEEB", fg="white")
+        label = tk.Label(frame, text="Name", font=("Arial", 12), bg="gray")
         label.grid(row=0, column=0, padx=10, pady=5, sticky="nsew")
         self.name_entry = tk.Entry(frame, width=30)
         self.name_entry.grid(row=1, column=0, padx=10, pady=5, sticky="nsew")
         frame.grid_columnconfigure(0, weight=1)
 
     def create_buttons(self, frame):
-        add_button = tk.Button(frame, text="Add Park", command=self.add_park, bg="#4682B4", fg="white")
+        add_button = tk.Button(frame, text="Add Park", command=self.add_park, bg="#4682B4")
         add_button.grid(row=0, column=0, padx=10)
 
-        delete_button = tk.Button(frame, text="Delete Selected Park", command=self.delete_selected_park, bg="#4682B4", fg="white")
+        delete_button = tk.Button(frame, text="Delete Selected Park", command=self.delete_selected_park, bg="#4682B4")
         delete_button.grid(row=0, column=1, padx=10)
 
-        search_button = tk.Button(frame, text="Search", command=self.search_parks, bg="#4682B4", fg="white")
+        search_button = tk.Button(frame, text="Search", command=self.search_parks, bg="#4682B4")
         search_button.grid(row=0, column=2, padx=10)
 
-        save_button = tk.Button(frame, text="Save List", command=self.save_parks, bg="#4682B4", fg="white")
+        save_button = tk.Button(frame, text="Save List", command=self.save_parks, bg="#4682B4")
         save_button.grid(row=0, column=3, padx=10)
 
     def add_park(self):
