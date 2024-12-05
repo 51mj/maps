@@ -4,6 +4,7 @@ import os
 
 DEFAULT_FILE_PATH = "park_data.txt"
 
+
 class Park:
     def __init__(self, name):
         self.name = name
@@ -12,12 +13,15 @@ class Park:
         return f"{self.name}"
 
 
-class ListPage:
-    def __init__(self, root):
+class ListPage(tk.Frame):
+    def __init__(self, root, db):
+        super().__init__(root)
         self.root = root
+        self.db = db
         self.root.title("Park List")
         self.root.geometry("1250x700")
-        self.root.configure(bg="gray")  
+        self.root.configure(bg="gray")
+        self.pack(fill="both", expand=True)
 
         # Initialize editing
         self.is_editing = False
@@ -49,8 +53,7 @@ class ListPage:
         # Store parks in a list
         self.parks = []
 
-        # Automatically open the file dialog after window initialization
-        self.root.after(100, self.open_file)
+        self.load_saved_data()
 
     def create_form_fields(self, frame):
         label = tk.Label(frame, text="Name", font=("Arial", 12), bg="gray")
@@ -104,6 +107,24 @@ class ListPage:
                         park = Park(name)
                         self.parks.append(park)
                         self.tree.insert('', tk.END, values=(park.name,))
+
+    def load_saved_data(self):
+        try:
+            parks_ref = self.db.collection("NationalParks")
+            docs = parks_ref.stream()
+
+            self.tree.delete(*self.tree.get_children())  # Clear current list
+            self.parks = []  # Clear existing park list
+
+            for doc in docs:
+                park_data = doc.to_dict()
+                name = park_data.get("name", "Unnamed Park")
+                park = Park(name)
+                self.parks.append(park)
+                self.tree.insert('', tk.END, values=(park.name,))
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Error loading data from Firestore: {str(e)}")
 
     def save_parks(self):
         try:

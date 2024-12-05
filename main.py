@@ -10,21 +10,6 @@ cred = credentials.Certificate(r"C:\Users\ianni\PycharmProjects\map-bytes.json")
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
-def reverse_geocode(lat, lon):
-    url = 'https://nominatim.openstreetmap.org/reverse'
-    params = {
-        'lat': str(lat),
-        'lon': str(lon),
-        'format': 'jsonv2',
-        'addressdetails': 1
-    }
-    headers = {
-        'User-Agent': 'The Bytes (ian.nichols056@gmail.com)'
-    }
-    response = requests.get(url, params=params, headers=headers)
-    response.raise_for_status()
-    return response.json()
-
 def geocode(location_name):
     url = 'https://nominatim.openstreetmap.org/search'
     params = {
@@ -40,8 +25,9 @@ def geocode(location_name):
     return response.json()
 
 class LocationHomepage:
-    def __init__(self, root):
+    def __init__(self, root, db):
         self.root = root
+        self.db = db
         self.root.title("Map App")
         self.root.geometry("1250x700")
 
@@ -153,9 +139,10 @@ class LocationHomepage:
 
     def open_list(self):
         new_window = tk.Toplevel(self.root)
-        ListPage(new_window)
+        list_page = ListPage(new_window, self.db)
+        list_page.pack(fill="both", expand=True)
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = LocationHomepage(root)
+    app = LocationHomepage(root, db)
     root.mainloop()
