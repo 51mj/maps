@@ -71,13 +71,19 @@ class LocationHomepage:
         parks_ref = db.collection("NationalParks")
         docs = parks_ref.stream()
 
+        self.gmaps.delete_all_marker()
+
         for doc in docs:
             park_data = doc.to_dict()
             latitude = park_data.get("latitude")
             longitude = park_data.get("longitude")
             name = park_data.get("name", "National Park")
+            last_visited = park_data.get("last_visited")
 
             self.gmaps.set_marker(latitude, longitude, text=name)
+
+    def refresh_map(self):
+        self.load_saved_data()
 
     def search(self, entry):
         search_text = entry.get().strip()
@@ -112,8 +118,9 @@ class LocationHomepage:
 
     def add_marker(self, coords):
         park_name = tk.simpledialog.askstring("Park Name", "Enter the name of the National Park:")
+        last_visited = tk.simpledialog.askstring("Last Visited", "Enter the last visited date (e.g., YYYY-MM-DD):")
 
-        if park_name:
+        if park_name and last_visited:
             print("Add marker: ", coords)
             new_marker = self.gmaps.set_marker(coords[0], coords[1], text=park_name)
             self.marker = new_marker
@@ -122,6 +129,7 @@ class LocationHomepage:
                 "latitude": coords[0],
                 "longitude": coords[1],
                 "name": park_name,
+                "last_visited": last_visited,
             }
 
             doc_ref = db.collection('NationalParks').document(park_name)
@@ -139,7 +147,7 @@ class LocationHomepage:
 
     def open_list(self):
         new_window = tk.Toplevel(self.root)
-        list_page = ListPage(new_window, self.db)
+        list_page = ListPage(new_window, self.db, self.refresh_map)
         list_page.pack(fill="both", expand=True)
 
 if __name__ == "__main__":
